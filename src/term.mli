@@ -3,9 +3,9 @@
   * l'on peut instantier.
   * Le type [obs_t] correspond à un terme superficiellement explicité. *)
 
-type t
-type var
-type obs_t = Fun of string * t list | Var of var
+type var = int
+type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list en t list*)
+type t = obs_t (*TODO trouver une meilleur ipléementation de t*)
 
 (** Modification d'une variable. *)
 val bind : var -> t -> unit
