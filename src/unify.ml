@@ -17,9 +17,9 @@ let rec unify t1 t2 =
     |Some t -> unify t (Term.make f sous_termes)            
     )
 
-  |Term.Var v1, Term.Var v2 ->
-    match Hashtbl.find_opt v1, Hashtbl.find_opt v2 with
-    |None, None -> Term.bind v1 (Term.var v2)
+  |Term.Var v1, Term.Var v2 -> let tbl = Term.save () in
+    (match Hashtbl.find_opt tbl v1, Hashtbl.find_opt tbl v2 with
+    |None, None -> Term.bind v1 (Term.var v2) 
     |None, Some t -> Term.bind v1 t
     |Some t, None -> Term.bind v2 t
-    |Some t1', Some t2' -> unify t1' t2'
+    |Some t1', Some t2' -> unify t1' t2')

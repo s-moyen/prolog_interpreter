@@ -67,7 +67,8 @@ let rec afficher_terme t = match t with
   | Fun(str, ol) -> Printf.printf "%s(" str; afficher_ol_list ol; Printf.printf ");"
 and afficher_ol_list ol = match ol with 
     | [] -> ()
-    | o::os -> afficher_terme o; afficher_ol_list os;;
+    | [o] -> afficher_terme o
+    | o::os -> afficher_terme o; Printf.printf ", " afficher_ol_list os;;
 
 
 Printf.printf "test\n";;
