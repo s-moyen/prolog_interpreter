@@ -8,11 +8,11 @@ CMA = .cma
 
 # Définition des fichiers sources associés aux différentes cibles
 
-LIB_ML = term.ml unify.ml query.ml
-TEST_ML = $(LIB_ML) test.ml
+LIB_ML = src/term.ml src/unify.ml src/query.ml
+TEST_ML = $(LIB_ML) src/test.ml
 TEST_OBJS = $(TEST_ML:.ml=$(CMO))
 
-INFERATRICE_ML = $(LIB_ML) ast.ml parser.ml lexer.ml convert.ml inferatrice.ml
+INFERATRICE_ML = $(LIB_ML) #ast.ml parser.ml lexer.ml convert.ml inferatrice.ml
 INFERATRICE_OBJS = $(INFERATRICE_ML:.ml=$(CMO))
 
 # Cibles

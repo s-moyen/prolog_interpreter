@@ -55,10 +55,10 @@ let save () = Hashtbl.copy global_state;;
 
 let merge_tbl tbl1 tbl2 = Hashtbl.iter (fun k1 v1 -> Hashtbl.add tbl2 k1 v1) tbl1
 
-let restore state = merge_tbl state global_state;;
+let restore state = Hashtbl.clear global_state; merge_tbl state global_state;;
 
 
-let reset = variable_cntr := 0; Hashtbl.clear global_state;;
+let reset () = variable_cntr := 0; Hashtbl.clear global_state;;
 
 
 let rec afficher_terme t = match t with 
