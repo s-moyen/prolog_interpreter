@@ -36,7 +36,7 @@ val fresh_var : unit -> t
 
 (** Manipulation de l'état: sauvegarde, restauration. *)
 
-type state
+type state =(var, t) Hashtbl.t
 
 (** [save ()] renvoie un descripteur de l'état actuel. *)
 val save : unit -> state
