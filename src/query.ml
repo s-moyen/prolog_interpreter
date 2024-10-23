@@ -1,4 +1,4 @@
-(* afficher_terme terme*)
+(* Term.afficher_terme terme*)
 
 let rec pp f obj = match obj with
   | False -> print_string "⊥"
@@ -6,7 +6,7 @@ let rec pp f obj = match obj with
   | Equals (t1, t2) ->
     Term.afficher_terme t1;
     print_string " = ";
-    afficher_terme t2;
+    Term.afficher_terme t2;
   | And (t1, t2) ->
     pp t1;
     print_string " ∧ ";
@@ -18,7 +18,7 @@ let rec pp f obj = match obj with
   | Atom(s, l) ->
       print_string s;
       print_string "(";
-      List.iter afficher_terme l;
+      List.iter Term.afficher_terme l;
       print_string ")";
 
 
@@ -37,18 +37,18 @@ let search ?atom_to_query process_result q = match q with
       Term.restore s;
     )
   | Equals(t1, t2) ->
-    let s = save () in
+    let s = Term.save () in
     try
       let _ = Unify.unify t1 t2 in
       process_result ();
-      restore s;
+      Term.restore s;
     with
-      Unification_failure  -> restore s
+      Unification_failure  -> Term.restore s
   | Atom(s, l) -> search ~atom_to_query:atom_to_query process_result (atom_to_query s l)
-    
-    
-    
-    
+
+
+
+
 
 let has_solution ?atom_to_query q =
   let solution = ref false
