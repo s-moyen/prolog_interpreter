@@ -1,4 +1,4 @@
-type var = String
+type var = int
 type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list en t list*)
 type t = obs_t (*TODO trouver une meilleur ipléementation de t*)
 
@@ -36,9 +36,11 @@ and var_equals x y  =
   | Some v1, Some v2 -> equals v1 v2;;
 
 
-let make str tl = let rec aux str tl obs_list = match tl with
+let make str tl = 
+    let rec aux str tl obs_list = match tl with
     | [] -> Fun(str, obs_list)
-    | t::ts -> aux str ts (t::obs_list);;
+    | t::ts -> (aux str ts (t::obs_list))
+in aux str tl [];;
 
     
 (*let var v = let t = Var v in bind v t; t;;*)
@@ -46,12 +48,12 @@ let var v = Var v;;
 
 let fresh () = let x = !variable_cntr + 1 in variable_cntr:=x; x;;
 
-let fresh_var () -> let v = fresh () in let t = var v in t;;
+let fresh_var () = let v = fresh () in let t = var v in t;;
 
 let save () = Hashtbl.copy global_state;;
 
 
-let merge_tbl tbl1 tbl2 = Hashtbl.iter (fun k1, v1 -> Hashtbl.add tbl2 k1 v1) tbl1
+let merge_tbl tbl1 tbl2 = Hashtbl.iter (fun k1 v1 -> Hashtbl.add tbl2 k1 v1) tbl1
 
 let restore state = merge_tbl state global_state;;
 
