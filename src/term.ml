@@ -2,6 +2,7 @@ type var = String
 type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list en t list*)
 type t = obs_t (*TODO trouver une meilleur ipléementation de t*)
 
+let variable_cntr = ref 0;;
 
 let tbl = Hashtbl.create 10;;
 
@@ -33,3 +34,11 @@ and var_equals x y  =
   | None, None -> false (*UB*)
   | None, _  | _, None -> false
   | Some v1, Some v2 -> equals v1 v2;;
+
+
+let make str tl = let rec aux str tl obs_list = match tl with
+    | [] -> Fun(str, obs_list)
+    | t::ts -> aux str ts (t::obs_list);;
+
+let var v = Var v;;
+let fresh () = let x = !ref + 1 in ref:=x; x;;
