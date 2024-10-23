@@ -68,7 +68,7 @@ let rec afficher_terme t = match t with
 and afficher_ol_list ol = match ol with 
     | [] -> ()
     | [o] -> afficher_terme o
-    | o::os -> afficher_terme o; Printf.printf ", " afficher_ol_list os;;
+    | o::os -> afficher_terme o; Printf.printf ", "; afficher_ol_list os;;
 
 
 Printf.printf "test\n";;
