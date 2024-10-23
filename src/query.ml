@@ -43,7 +43,7 @@ let has_solution ?atom_to_query q = match q with
 
 let search ?atom_to_query process_result q = match q with
   | True | False -> if has_solution q then process_result ()
-  | And(t1, t2) -> search ~atom_to_query:atom_to_query (fun result -> search ~atom_to_query:atom_to_query process_result t2) t1
+  | And(t1, t2) -> search ~atom_to_query:atom_to_query (fun () -> search ~atom_to_query:atom_to_query process_result t2) t1
   | Or (t1, t2) ->
     let s = Term.save () in (
       search ~atom_to_query:atom_to_query process_result t1;
@@ -55,7 +55,8 @@ let search ?atom_to_query process_result q = match q with
     let s = save () in
     try
       let _ = Unify.unify t1 t2 in
-      process_result
+      process_result ();
+      restore s;
     with
       Unification_failure  -> restore s
   | Atom(s, l) -> search ~atom_to_query:atom_to_query process_result (atom_to_query s l)
