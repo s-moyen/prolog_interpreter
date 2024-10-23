@@ -40,5 +40,8 @@ let make str tl = let rec aux str tl obs_list = match tl with
     | [] -> Fun(str, obs_list)
     | t::ts -> aux str ts (t::obs_list);;
 
-let var v = Var v;;
+let var v = let t = Var v in bind v t; t;;
+
 let fresh () = let x = !ref + 1 in ref:=x; x;;
+
+let fresh_var () -> let v = fresh () in let t = var v in t;;
