@@ -48,3 +48,5 @@ val restore : state -> unit
     Garantit que les futurs usages seront comme 
     dans un module fraichement initialisé. *)
 val reset : unit -> unit
+
+val afficher_terme: t -> unit

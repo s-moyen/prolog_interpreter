@@ -59,3 +59,11 @@ let restore state = merge_tbl state global_state;;
 
 
 let reset = variable_cntr := 0; Hashtbl.clear global_state;;
+
+
+let rec afficher_terme t = match t with 
+  | Var v -> Printf.printf "Var %d" v
+  | Fun(str, ol) -> Printf.printf "%s(" str; afficher_ol_list ol; Printf.printf ");"
+and afficher_ol_list ol = match ol with 
+    | [] -> ()
+    | o::os -> afficher_terme o; afficher_ol_list os;;
