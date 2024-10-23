@@ -1,6 +1,7 @@
 type var = int
 type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list en t list*)
 type t = obs_t (*TODO trouver une meilleur ipléementation de t*)
+type state =(var, t) Hashtbl.t
 
 let variable_cntr = ref 0;;
 
@@ -67,3 +68,6 @@ let rec afficher_terme t = match t with
 and afficher_ol_list ol = match ol with 
     | [] -> ()
     | o::os -> afficher_terme o; afficher_ol_list os;;
+
+
+Printf.printf "test\n";;
