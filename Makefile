@@ -2,7 +2,8 @@ OCAMLC = ocamlc
 CMO = .cmo
 CMA = .cma
 
-default: term_mod unify query inferatrice
+default: term_mod unify_mod query_mod 
+	$(OCAMLC) -o bin/main -I bin/ src/main.ml bin/term$(CMO) bin/unify$(CMO) bin/query$(CMO)
 
 term_mod:
 	$(OCAMLC) -o bin/term -a src/term.mli 
@@ -10,10 +11,14 @@ term_mod:
 	$(OCAMLC) -I bin/ -c src/term.ml -o bin/term
 
 unify_mod:
-	$(OCAMLC) -o bin/unify -a src/unify.mli 
+	$(OCAMLC) -I bin/ -o bin/unify -a src/term.mli src/unify.mli 
 	mv src/unify.cmi bin/unify.cmi
 	$(OCAMLC) -I bin/ -c src/unify.ml -o bin/unify
 
+query_mod:
+	$(OCAMLC) -I bin/ -o bin/query -a src/query.mli 
+	mv src/query.cmi bin/query.cmi
+	$(OCAMLC) -I bin/ -c src/query.ml -o bin/query
 
 test: term_mod unify_mod
 	$(OCAMLC) -I bin/ -c src/test.mli -o bin/test.cmi
