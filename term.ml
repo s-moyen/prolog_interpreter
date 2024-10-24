@@ -3,6 +3,8 @@ type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list e
 type t = obs_t (*TODO trouver une meilleur implémentation de t*)
 type state =(var, t) Hashtbl.t
 
+exception Recursive_bind
+
 let variable_cntr = ref 0;;
 
 let global_state = Hashtbl.create 10;;
@@ -38,6 +40,15 @@ and var_equals x y  =
   | Some v1, Some v2 -> equals v1 v2;;
 
 
+
+let rec is_var_in_term v t =
+  match t with
+  | Fun(name, sub) -> List.fold_left (fun acc t' -> acc || is_var_in_term v t') false sub
+  | Var v' -> match Hashtbl.find_opt global_state v' with
+    |None -> v = v'
+    |Some t' -> (v = v') || (is_var_in_term v t')
+
+
 let make str tl = 
     let rec aux str tl obs_list = match tl with
     | [] -> Fun(str, obs_list)
@@ -63,13 +74,13 @@ let restore state = Hashtbl.clear global_state; merge_tbl state global_state;;
 let reset () = variable_cntr := 0; Hashtbl.clear global_state;;
 
 
-let rec afficher_terme t = match t with 
+let rec pp f t = match t with 
   | Var v -> Printf.printf "Var %d" v
   | Fun(str, ol) -> Printf.printf "%s(" str; afficher_ol_list ol; Printf.printf ");"
 and afficher_ol_list ol = match ol with 
     | [] -> ()
-    | [o] -> afficher_terme o
-    | o::os -> afficher_terme o; Printf.printf ", "; afficher_ol_list os;;
+    | [o] -> pp (Format.std_formatter) o
+    | o::os -> pp (Format.std_formatter) o; Printf.printf ", "; afficher_ol_list os;;
 
 
 Printf.printf "test\n";;

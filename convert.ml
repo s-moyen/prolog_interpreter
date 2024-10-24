@@ -78,7 +78,7 @@ let rec query atoms =
 
     let print_one_var v t =
       Printf.printf "Var %d = " v;
-      Term.afficher_terme t;
+      Term.pp (Format.std_formatter) t;
       Printf.printf "\n"
     in
 
@@ -93,7 +93,7 @@ let rec query atoms =
 
     let print_one_var v t =
       Printf.printf "Var %d = " v;
-      Term.afficher_terme t;
+      Term.pp (Format.std_formatter) t;
       Printf.printf "\n"
     in
 

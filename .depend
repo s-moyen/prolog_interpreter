@@ -63,10 +63,12 @@ term.cmx : \
 term.cmi :
 test.cmo : \
     unify.cmi \
-    term.cmi
+    term.cmi \
+    query.cmi
 test.cmx : \
     unify.cmx \
-    term.cmx
+    term.cmx \
+    query.cmx
 unify.cmo : \
     term.cmi \
     unify.cmi

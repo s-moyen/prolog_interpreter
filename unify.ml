@@ -11,16 +11,12 @@ let rec unify t1 t2 =
     else
       raise Unification_failure
 
-  |Term.Fun(f, sous_termes), Term.Var v|Term.Var v, Term.Fun(f, sous_termes) ->
+  |t, Term.Var v|Term.Var v, t ->
     let tbl = Term.get_global_state() in 
     (match Hashtbl.find_opt tbl v with
-    |None -> Term.bind v (Term.make f sous_termes)
-    |Some t -> unify t (Term.make f sous_termes)            
+    |None -> if Term.is_var_in_term v t then
+        raise Unification_failure
+    else
+      Term.bind v t
+    |Some t' -> unify t t'
     )
-
-  |Term.Var v1, Term.Var v2 -> let tbl = Term.save () in
-    (match Hashtbl.find_opt tbl v1, Hashtbl.find_opt tbl v2 with
-    |None, None -> Term.bind v1 (Term.var v2) 
-    |None, Some t -> Term.bind v1 t
-    |Some t, None -> Term.bind v2 t
-    |Some t1', Some t2' -> unify t1' t2')

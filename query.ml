@@ -9,15 +9,15 @@ type t =
 
 
 
-(* Term.afficher_terme terme*)
+(* Term.pp terme*)
 
 let rec pp f obj = match obj with
   | False -> print_string "⊥"
   | True -> print_string "T"
   | Equals (t1, t2) -> (
-    Term.afficher_terme t1;
+    Term.pp (Format.std_formatter) t1;
     print_string " = ";
-    Term.afficher_terme t2)
+    Term.pp (Format.std_formatter) t2)
   | And (t1, t2) ->
     (pp f t1;
     print_string " ∧ ";
@@ -29,7 +29,7 @@ let rec pp f obj = match obj with
   | Atom(s, l) -> (
       print_string s;
       print_string "(";
-      List.iter Term.afficher_terme l;
+      List.iter (Term.pp (Format.std_formatter)) l;
       print_string ")")
 
 

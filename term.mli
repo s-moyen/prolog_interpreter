@@ -19,6 +19,8 @@ val observe : t -> obs_t
 val equals : t -> t -> bool
 val var_equals : var -> var -> bool
 
+val is_var_in_term : var -> t -> bool
+
 
 (** Constructeurs de termes. *)
 
@@ -50,6 +52,6 @@ val restore : state -> unit
     dans un module fraichement initialisé. *)
 val reset : unit -> unit
 
-val afficher_terme: t -> unit
+val pp: Format.formatter -> t -> unit
 
 val get_global_state : unit -> state (* TODO regler ce fix pas ouf *)
