@@ -4,23 +4,32 @@
 pour cela on utilise une hashtable qui associe les variables à des entiers 
 La hashtable est local car on ne veut pas que les variables soient partagées entre les différents atom_t*)
 
-let rec convert_atom_t t = 
-  let tbl = Hashtbl.create 10 in  
+
+
+
+let rec convert_atom_with_hash t tbl=   
   match t with
-  | App (str, tl) -> Term.Fun(str, convert_atom_t tl)
-  | Var v -> 
+  | Ast.Term.App (str, tl) -> Term.Fun(str, convert_atom_list tl tbl)
+  | Ast.Term.Var v -> Printf.printf "Var %s\n" v;
     if Hashtbl.mem tbl v then Term.Var (Hashtbl.find tbl v)
     else 
-      let x = Term.fresh () in
+      let x = Term.fresh () in       Printf.printf "'%s' pas trouve dans la table, on lui associe %d\n" v x;
       Hashtbl.add tbl v x;
       Term.var x
+and convert_atom_list tl tbl = let rec aux tl l = match tl with
+      | [] -> l
+      | t::ts -> (convert_atom_with_hash t tbl)::(aux ts l)
+    in aux tl [];;
+  
+    let convert_atom_t t = let tbl = Hashtbl.create 10 in convert_atom_with_hash t tbl;;
 
 
 exception Not_matching_rule
 
-let equality
+let equality = 0;;
 
-let rec convert_result atom rgl = match (atom, rgl) with
+(*
+let rec convert_result atom rgl = let open Query in match (atom, rgl) with
   (* Cette fonction prend un atome et une règle, et renvoie une conjonction d'égalités entre les termes de l'atome et de la règle *)
   | (Atom (_, []), Atom (_, [])) -> True
   | (Atom(s1, t1::q1), Atom(s2, t2::q2)) when s1 <> s2 -> raise Not_matching_rule
@@ -35,3 +44,4 @@ let convert_hyp hyp_l =
 let convert_1_rule atom (rgl, hyp_l) =
 (* cette fonction prend en argument une règle et un atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
   et les termes des règles*)
+*)
