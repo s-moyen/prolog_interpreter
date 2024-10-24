@@ -24,6 +24,7 @@ let rec pp f obj = match obj with
 
 (* atom to query : transforme en disjonction de toutes les règles applicables *)
 
+
 (* f ~x:6 5 *)
 
 let has_solution ?atom_to_query q = match q with
