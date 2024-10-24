@@ -1,11 +1,17 @@
-let variable_table (*todo utiliser une hashtbl str -> int pour les variables*)
 
 
-let to_asci str = let rec aux str somme index = if index=(String.length str) then somme else
-  let code = Char.code str.[index] in aux str (somme+code) (index+1)
-in aux str 0 0;; 
+(*pour convertir un atom_t de type App "f" (Var "X") on veut verifier que X n'est pas déjà une variable (un entier)
+pour cela on utilise une hashtable qui associe les variables à des entiers 
+La hashtable est local car on ne veut pas que les variables soient partagées entre les différents atom_t*)
 
-
-let rec convert_atom_t t = match t with
+let rec convert_atom_t t = 
+  let tbl = Hashtbl.create 10 in  
+  match t with
   | App (str, tl) -> Term.Fun(str, convert_atom_t tl)
-  | Var v -> Term.var v
+  | Var v -> 
+    if Hashtbl.mem tbl v then Term.Var (Hashtbl.find tbl v)
+    else 
+      let x = Term.fresh () in
+      Hashtbl.add tbl v x;
+      Term.var x
+  
