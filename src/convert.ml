@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 let variable_table (*todo utiliser une hashtbl str -> int pour les variables*)
 
 
@@ -10,7 +9,8 @@ in aux str 0 0;;
 let rec convert_atom_t t = match t with
   | App (str, tl) -> Term.Fun(str, convert_atom_t tl)
   | Var v -> Term.var v
-=======
+
+
 exception Not_matching_rule
 
 let equality
@@ -30,5 +30,3 @@ let convert_hyp hyp_l =
 let convert_1_rule atom (rgl, hyp_l) =
 (* cette fonction prend en argument une règle et un atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
   et les termes des règles*)
-  
->>>>>>> 647db9c (	modifié :         convert.ml)
