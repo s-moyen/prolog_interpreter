@@ -25,7 +25,8 @@ and convert_atom_list tl tbl = let rec aux tl l = match tl with
       | t::ts -> (convert_atom_with_hash t tbl)::(aux ts l)
     in aux tl [];;
   
-    let convert_atom_t t = let tbl = Hashtbl.create 10 in convert_atom_with_hash t tbl;;
+
+let convert_atom_t t = let tbl = Hashtbl.create 10 in convert_atom_with_hash t tbl;;
 
 
 exception Not_matching_rule

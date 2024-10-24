@@ -7,6 +7,7 @@ type var = int
 type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list en t list*)
 type t = obs_t (*TODO trouver une meilleur ipléementation de t*)
 
+
 (** Modification d'une variable. *)
 val bind : var -> t -> unit
 
@@ -50,3 +51,5 @@ val restore : state -> unit
 val reset : unit -> unit
 
 val afficher_terme: t -> unit
+
+val get_global_state : unit -> state (* TODO regler ce fix pas ouf *)

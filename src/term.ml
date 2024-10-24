@@ -6,6 +6,7 @@ type state =(var, t) Hashtbl.t
 let variable_cntr = ref 0;;
 
 let global_state = Hashtbl.create 10;;
+let get_global_state () = global_state;;
 
 let bind var t = 
   Hashtbl.add global_state var t;;
