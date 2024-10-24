@@ -38,10 +38,30 @@ let rec convert_result atom rgl = let open Query in match (atom, rgl) with
 
 let convert_hyp hyp_l =
 
-
+*)
 
 
 let convert_1_rule atom (rgl, hyp_l) =
 (* cette fonction prend en argument une règle et un atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
   et les termes des règles*)
-*)
+
+let rec query atoms =
+  match atoms with
+  |[Ast.Atom.Atom (s, terms)] -> 
+    let state_to_print = ref Term.save Term.global_state in
+
+    let print_one_var v t =
+      Printf.printf "Var %d = " v;
+      afficher_terme t;
+      Printf.printf "\n"
+    in
+
+    let print_vars () =
+      Hashtbl.iter print_one_var !state_to_print
+    in
+
+    Query.Atom(s, terms), print_vars
+
+  |(Ast.Atom.Atom (s, terms))::atoms ->
+    match query atoms with
+    |q_tail, print_vars -> Query.And(Query.Atom(s, terms), q_tail), print_vars
