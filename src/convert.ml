@@ -32,11 +32,6 @@ let convert_atom_t t = let tbl = Hashtbl.create 10 in convert_atom_with_hash t t
 exception Not_matching_rule
 
 
-let rec convert_result atom rgl = match (atom, rgl) with
-  (* Cette fonction prend un atome et une règle, et renvoie une conjonction d'égalités entre les termes de l'atome et ceux de la règle *)
-
-  let equality = 0;;
-
 
 let rec convert_result atom rgl = let open Query in match (atom, rgl) with
   (* Cette fonction prend un atome et une règle, et renvoie une conjonction d'égalités entre les termes de l'atome et de la règle *)
