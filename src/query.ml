@@ -25,6 +25,8 @@ let rec pp f obj = match obj with
 (* atom to query : transforme en disjonction de toutes les règles applicables *)
 
 
+(* f ~x:6 5 *)
+
 
 let search ?atom_to_query process_result q = match q with
   | True | False -> if has_solution q then process_result ()
