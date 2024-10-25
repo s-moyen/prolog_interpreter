@@ -6,7 +6,10 @@
 type var = int
 type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list en t list*)
 type t = obs_t (*TODO trouver une meilleur ipléementation de t*)
+type state =(var, t) Hashtbl.t
 
+(**Permet aux fonctions extérieures au module [Term] d'avoir accès à l'état des variables.*)
+val get_global_state : unit -> state (* TODO regler ce fix pas ouf *)
 
 (** Modification d'une variable. *)
 val bind : var -> t -> unit
@@ -16,9 +19,17 @@ val observe : t -> obs_t
 
 (** Egalité syntaxique entre termes et variables. *)
 
+(** Vérifie que les deux listes passées en paramètre sont de même longueur et que
+tous leurs éléments vérifient un prédicat passé en paramètre. *)
+val check_predicate2 : t list -> t list -> (t -> t -> bool) -> bool
+
+(** Vérifie l'égalité de deux termes (de type [t]) *)
 val equals : t -> t -> bool
+(** Vérifie l'égalité de deux variables (de type [var]) *)
 val var_equals : var -> var -> bool
 
+
+(** Vérification en profondeur de la présence d'une variable [v] dans un terme [t].*)
 val is_var_in_term : var -> t -> bool
 
 
@@ -39,10 +50,12 @@ val fresh_var : unit -> t
 
 (** Manipulation de l'état: sauvegarde, restauration. *)
 
-type state =(var, t) Hashtbl.t
-
 (** [save ()] renvoie un descripteur de l'état actuel. *)
 val save : unit -> state
+
+(** L'appel [merge_tbl tbl1 tbl2] ajoute toutes les associations de tbl1 à tbl2
+en écrasant les éventuels valeurs précédentes de tbl2 en cas de conflit.*)
+val merge_tbl : state -> state -> unit
 
 (** [restore s] restaure les variables dans l'état décrit par [s]. *)
 val restore : state -> unit
@@ -52,9 +65,14 @@ val restore : state -> unit
     dans un module fraichement initialisé. *)
 val reset : unit -> unit
 
-val pp: Format.formatter -> t -> unit
+(**Le pretty printer des termes.*)
+val pp : Format.formatter -> t -> unit
 
-val get_global_state : unit -> state (* TODO regler ce fix pas ouf *)
+(** Affiche une liste de termes, séparés pas des virgules.*)
+val print_term_list : t list -> unit
 
+(**Affichage de la valeur actuelle d'une variable.*)
 val print_one_var : var -> t -> unit
+
+(**Affichage des valeures actuelles de toutes les fonctions.*)
 val print_vars : unit -> unit
