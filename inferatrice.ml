@@ -31,7 +31,6 @@ let () =
     try
       let atoms = Parser.query Lexer.tokenize lexbuf in
       let query, print_solution = Convert.query atoms in
-      Query.pp (Format.std_formatter) query;
       let print_solution () =
         print_solution () ;
         Format.printf "More solutions? [Y/n] " ;

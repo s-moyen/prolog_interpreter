@@ -40,7 +40,7 @@ exception Not_matching_rule
 
 let rec convert_result atom rgl = let open Query in match (atom, rgl) with
   (* Cette fonction prend un atome et une règle, et renvoie une conjonction d'égalités entre les termes de l'atome et de la règle *)
-  | (Query.Atom (_, []), Query.Atom (_, [])) -> Query.True
+  | (Query.Atom (s1, []), Query.Atom (s2, [])) -> if s1 = s2 then Query.True else Query.False
   | (Query.Atom(s1, t1::q1), Query.Atom(s2, t2::q2)) when s1 <> s2 -> raise Not_matching_rule
   | (Query.Atom(s1, t1::q1), Query.Atom(s2, t2::q2)) -> Query.And( Query.Equals(t1, t2 ), convert_result (Query.Atom(s1, q1)) (Query.Atom(s2, q2)))
   | _ -> failwith "TU Fé Koi"
@@ -54,11 +54,25 @@ let rec convert_hyp hyp_l = match hyp_l with
 
 
 
-let convert_1_rule atom (rgl, hyp_l) = match hyp_l with
+let convert_1_rule atom (ccl, hyp_l) = match hyp_l with
 (* cette fonction prend en argument une règle et un Query.atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
   et les termes des règles*)
-  | [] -> convert_result atom (convert_ast_to_query_atom rgl)
-  | _ -> Query.And(convert_result atom (convert_ast_to_query_atom rgl), convert_hyp hyp_l)
+  | [] -> let ccl_query = convert_ast_to_query_atom ccl in
+    (match atom, ccl_query with
+      | Query.Atom(s1, l1), Query.Atom(s2, l2) -> let compt = ref (s1 = s2) in
+        List.iter2 (fun t1 t2 -> compt := !compt && Term.equals t1 t2) l1 l2 ;
+        if !compt then
+          Query.True
+        else
+          convert_result atom (convert_ast_to_query_atom ccl)
+        
+      | _ -> failwith "convert_1_rule : C'est pas des atomes ca frero"
+    )
+  | _ -> let gauche = convert_result atom (convert_ast_to_query_atom ccl) in
+          (if gauche = Query.False then (*pas d'application possible car la regle ne matche pas*)
+            Query.False
+          else
+            Query.And(gauche, convert_hyp hyp_l))
 
 
 let rules regles =
@@ -67,7 +81,11 @@ let rules regles =
   let rec aux rem_rules s_atom l_atom = match rem_rules with
   | [] -> Query.False
   | [regle] -> convert_1_rule (Query.Atom(s_atom, l_atom)) regle
-  | regle::suite_regles -> Query.Or(convert_1_rule (Query.Atom(s_atom, l_atom)) regle, aux suite_regles s_atom l_atom)
+  | regle::suite_regles -> let gauche = convert_1_rule (Query.Atom(s_atom, l_atom)) regle in
+    (if gauche = Query.False then
+      aux suite_regles s_atom l_atom
+    else
+      Query.Or(gauche, aux suite_regles s_atom l_atom))
   in
   aux regles
 

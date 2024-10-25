@@ -63,7 +63,10 @@ let rec search ?atom_to_query process_result q = match q with
       with
         Unify.Unification_failure  -> Term.restore s
     )
-  | Atom(s, l) -> print_string "z2 " ; search ~atom_to_query:(get_atom_to_query atom_to_query) process_result ((get_atom_to_query atom_to_query) s l)
+  | Atom(s, l) ->
+    let new_query = (get_atom_to_query atom_to_query) s l in
+      print_string "Nouvelle requête : " ; pp (Format.std_formatter) new_query; print_string "\n";
+      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result new_query
 
 
 
