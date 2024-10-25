@@ -90,5 +90,3 @@ let has_solution ?atom_to_query query =
   
   search ~atom_to_query:atom_to_query (fun () -> solution := true) query;
   !solution
-
-    
