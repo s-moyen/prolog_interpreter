@@ -3,15 +3,13 @@ type obs_t = Fun of string * obs_t list | Var of var (*TODO changer obs_t list e
 type t = obs_t (*TODO trouver une meilleur implémentation de t*)
 type state =(var, t) Hashtbl.t
 
-exception Recursive_bind
 
 let variable_cntr = ref 0;;
 
 let global_state = Hashtbl.create 10;;
 let get_global_state () = global_state;;
 
-let bind var t = 
-  Hashtbl.add global_state var t;;
+
 
 let observe t = match t with
   | Fun (str, l)-> t
@@ -92,9 +90,17 @@ let restore state =
 let reset () = variable_cntr := 0; Hashtbl.clear global_state;;
 
 
+(*let rec pp_annex formatter v = match Hashtbl.find_opt global_state v with
+  | None -> Printf.printf "c'est vide pp_annex jsp pk\n"
+  | Some t -> if t = Var v then Printf.printf "Cycle sur Var %d\n" v else pp formatter t
+and*)
 let rec pp formatter term = 
   match term with 
-  | Var v -> Printf.printf "Var %d" v
+  | Var v -> let temp = Hashtbl.find_opt global_state v in 
+      (match temp with
+      | None -> Printf.printf "VARIABLE NON TROUVEE: %d\n" v
+      | Some terme -> pp formatter terme)
+
   | Fun(fun_name, sub_terms) -> Printf.printf "%s" fun_name;
     if sub_terms <> [] then begin
       print_string "(";
@@ -124,3 +130,12 @@ let print_vars () =
   Hashtbl.iter print_one_var global_state
 
 
+
+
+  let bind var t =
+    print_string "BIND : ";
+    pp (Format.std_formatter) (Var var);
+    print_string " <- ";
+    pp (Format.std_formatter) t;
+    print_string "\n";
+    Hashtbl.add global_state var t;;

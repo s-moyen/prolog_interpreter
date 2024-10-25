@@ -49,8 +49,6 @@ let get_atom_to_query atom_to_query =
 
 let rec search ?atom_to_query process_result q =
   let atom_to_query = get_atom_to_query atom_to_query in
-  print_string "Nouvelle requête : " ;
-  pp (Format.std_formatter) q; print_string "\n";
   match q with
   | True | False -> if q = True then process_result ()
   | And(q1, q2) -> 

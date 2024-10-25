@@ -20,14 +20,12 @@ let rec convert_term_with_hash term tbl=
   match term with
   | Ast.Term.App (str, term_list) -> Term.Fun(str, convert_term_list term_list tbl)
 
-  | Ast.Term.Var v -> Printf.printf "Var %s\n" v;
+  | Ast.Term.Var v ->
     if Hashtbl.mem tbl v then
-      (Printf.printf "%s trouve dans la table de variable %d\n" v (Hashtbl.find tbl v); 
-      Term.Var (Hashtbl.find tbl v))
+      Term.Var (Hashtbl.find tbl v)
       
     else 
       (let x = Term.fresh () in
-      Printf.printf "'%s' pas trouve dans la table, on lui associe %d\n" v x;
       Hashtbl.add tbl v x;
       Term.var x)
 and convert_term_list term_list tbl = 
@@ -46,7 +44,6 @@ let convert_term_t term =
 
 
 let convert_ast_to_query_atom atom = 
-  let tbl = Hashtbl.create 10 in
   match atom with
   | Ast.Atom.Atom(s, terms) -> Query.Atom(s, convert_term_list terms tableGLOBAL)
 
@@ -65,11 +62,10 @@ let rec convert_result atom rgl =
     else
       Query.False
 
-  | (Query.Atom(s1, t1::q1), Query.Atom(s2, t2::q2)) when s1 <> s2 -> 
-    raise Not_matching_rule
+  | (Query.Atom(s1, t1::q1), Query.Atom(s2, t2::q2)) when s1 <> s2 -> raise Not_matching_rule
 
   | (Query.Atom(s1, t1::q1), Query.Atom(s2, t2::q2)) -> 
-    Query.And(Query.Equals(t1, t2), convert_result (Query.Atom(s1, q1)) (Query.Atom(s2, q2)))
+      Query.And(Query.Equals(t1, t2), convert_result (Query.Atom(s1, q1)) (Query.Atom(s2, q2)))
 
   | _ -> failwith "Cette requete ne correspond a aucune regle connue\n"
 
@@ -84,7 +80,16 @@ let rec convert_hyp hyp_list =
 
 
 
+
+
+
+
+
+
+
+
   let convert_1_rule atom (conclusion, hyp_list) =
+    let (conclusion2, hyp_list2) = nouvelles_variables conclusion hyp_list in
     match hyp_list with
     | [] -> let ccl_query = convert_ast_to_query_atom conclusion in (
       match atom, ccl_query with
@@ -131,10 +136,9 @@ let rules regles =
 
 
 let rec query atoms =
+  let state_to_print = Term.get_global_state () in
   match atoms with
   |[] -> 
-    let state_to_print = ref (Term.save ()) in
-
     let print_one_var v t =
       Printf.printf "Var %d = " v;
       Term.pp (Format.std_formatter) t;
@@ -142,14 +146,12 @@ let rec query atoms =
     in
 
     let print_vars () =
-      Hashtbl.iter print_one_var !state_to_print
+      Hashtbl.iter print_one_var state_to_print
     in
 
     (Query.True), print_vars
   
   |[atom] -> 
-    let state_to_print = ref (Term.save ()) in
-
     let print_one_var v t =
       Printf.printf "Var %d = " v;
       Term.pp (Format.std_formatter) t;
@@ -157,11 +159,11 @@ let rec query atoms =
     in
 
     let print_vars () =
-      if Hashtbl.length !state_to_print = 0 then
+      if Hashtbl.length state_to_print = 0 then
         print_string "Aucun variable\n"
       else
         print_string "REPONSE : ";
-        Hashtbl.iter print_one_var !state_to_print;
+        Hashtbl.iter print_one_var state_to_print;
         print_string "\n"
     in
 
