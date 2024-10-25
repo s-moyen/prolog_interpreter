@@ -55,3 +55,6 @@ val reset : unit -> unit
 val pp: Format.formatter -> t -> unit
 
 val get_global_state : unit -> state (* TODO regler ce fix pas ouf *)
+
+val print_one_var : var -> t -> unit
+val print_vars : unit -> unit

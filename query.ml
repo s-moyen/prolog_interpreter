@@ -51,15 +51,15 @@ let rec search ?atom_to_query process_result q = match q with
     let s = Term.save () in (
       search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t1;
       Term.restore s;
+
       search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t2;
-      Term.restore s
+      Term.restore s;
     )
   | Equals(t1, t2) ->
     let s = Term.save () in (
       try
         let _ = Unify.unify t1 t2 in
         process_result ();
-        Term.restore s;
       with
         Unify.Unification_failure  -> Term.restore s
     )

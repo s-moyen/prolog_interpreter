@@ -83,4 +83,14 @@ and afficher_ol_list ol = match ol with
     | o::os -> pp (Format.std_formatter) o; Printf.printf ", "; afficher_ol_list os;;
 
 
-Printf.printf "test\n";;
+
+
+let print_one_var v t =
+  Printf.printf "Var %d = " v;
+  pp (Format.std_formatter) t;
+  Printf.printf "\n"
+
+
+let print_vars () =
+  Printf.printf "Affichage des variables :\n\n";
+  Hashtbl.iter print_one_var global_state

@@ -29,9 +29,6 @@ run_tests: $(TEST_OBJS)
 inferatrice: $(INFERATRICE_OBJS)
 	$(OCAMLL) $(INFERATRICE_OBJS) -o $@
 
-clean:
-	rm -f *.cmx *.cmo *.cmi *.o
-	rm -f run_tests inferatrice
 
 -include .depend
 .depend: $(wildcard *.ml) $(wildcard *.mli)
@@ -46,3 +43,10 @@ parser.ml: parser.mly
 	ocamlyacc $<
 lexer.ml: lexer.mll
 	ocamllex $<
+
+
+
+.PHONY: clean
+clean:
+	rm -f *.cmx *.cmo *.cmi *.o
+	rm -f run_tests inferatrice
