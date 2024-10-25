@@ -8,9 +8,6 @@ in aux str 0 0;;
 pour cela on utilise une hashtable qui associe les variables à des entiers 
 La hashtable est local car on ne veut pas que les variables soient partagées entre les différents atom_t*)
 
-
-
-
 let rec convert_term_with_hash t tbl=  
   match t with
   | Ast.Term.App (str, tl) -> Term.Fun(str, convert_term_list tl tbl)
@@ -18,15 +15,19 @@ let rec convert_term_with_hash t tbl=
     if Hashtbl.mem tbl v then Term.Var (Hashtbl.find tbl v)
     else 
       let x = Term.fresh () in       Printf.printf "'%s' pas trouve dans la table, on lui associe %d\n" v x;
-      Hashtbl.add tbl v x;
-      Term.var x
+      Hashtbl.add tbl v x; (* on ajoute cette variable pour subrequete à la hashtlb local*)
+      let t = Term.var x in 
+      (*Term.bind x t;*) 
+      t
 and convert_term_list tl tbl = let rec aux tl l = match tl with
       | [] -> l
-      | t::ts -> (convert_term_with_hash t tbl)::(aux ts l)
+      | t::ts -> (convert_term_with_hash t tbl )::(aux ts l)
     in aux tl [];;
   
 
-let convert_term_t t = let tbl = Hashtbl.create 10 in convert_term_with_hash t tbl;;
+let convert_term_t t = let sv = Term.save () in
+   let tbl = Hashtbl.create 10 in let x = convert_term_with_hash t tbl
+  in Term.restore sv; x;;
 
 
 let convert_ast_to_query_atom atom = let tbl = Hashtbl.create 10 in

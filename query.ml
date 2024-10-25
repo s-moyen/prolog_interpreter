@@ -29,7 +29,7 @@ let rec pp f obj = match obj with
   | Atom(s, l) -> (
       print_string s;
       print_string "(";
-      List.iter (fun t -> print_string " " ; Term.pp (Format.std_formatter) t) l;
+      List.iter (Term.pp (Format.std_formatter)) l;
       print_string ")")
 
 
@@ -44,7 +44,11 @@ let get_atom_to_query atom_to_query =
   | None -> (fun (s : string) (terms : Term.t list) -> False)
 
 
-let rec search ?atom_to_query process_result q = match q with
+let rec search ?atom_to_query process_result q = 
+  Printf.printf "searching request\n";
+  pp Format.std_formatter q;
+  Printf.printf ". fin\n";
+  match q with
   | True | False -> if q = True then process_result ()
   | And(t1, t2) -> search ~atom_to_query:(get_atom_to_query atom_to_query) (fun () -> search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t2) t1
   | Or (t1, t2) ->
@@ -63,10 +67,7 @@ let rec search ?atom_to_query process_result q = match q with
       with
         Unify.Unification_failure  -> Term.restore s
     )
-  | Atom(s, l) ->
-    let new_query = (get_atom_to_query atom_to_query) s l in
-      print_string "Nouvelle requête : " ; pp (Format.std_formatter) new_query; print_string "\n";
-      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result new_query
+  | Atom(s, l) -> search ~atom_to_query:(get_atom_to_query atom_to_query) process_result ((get_atom_to_query atom_to_query) s l)
 
 
 
