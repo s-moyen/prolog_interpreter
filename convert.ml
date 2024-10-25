@@ -15,7 +15,7 @@ let rec convert_term_with_hash t tbl=
   match t with
   | Ast.Term.App (str, tl) -> Term.Fun(str, convert_term_list tl tbl)
   | Ast.Term.Var v -> Printf.printf "Var %s\n" v;
-    if Hashtbl.mem tbl v then Term.Var (Hashtbl.find tbl v)
+    if Hashtbl.mem tbl v then( (Printf.printf "%s trouve dans la table de variable %d\n" v (Hashtbl.find tbl v)); Term.Var (Hashtbl.find tbl v))
     else 
       let x = Term.fresh () in       Printf.printf "'%s' pas trouve dans la table, on lui associe %d\n" v x;
       Hashtbl.add tbl v x;
