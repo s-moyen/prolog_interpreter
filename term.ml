@@ -34,10 +34,12 @@ let rec equals t1 t2 = let u1 = observe t1 in let u2 = observe t2 in match u1,u2
         |None -> false
         |Some t -> equals t (Fun(f, w))
 and var_equals x y  = 
-  match Hashtbl.find_opt global_state x, Hashtbl.find_opt global_state y with
-  | None, None -> false (*UB*)
-  | None, _  | _, None -> false
-  | Some v1, Some v2 -> equals v1 v2;;
+  if x = y then true else
+    match Hashtbl.find_opt global_state x, Hashtbl.find_opt global_state y with
+    | None, None -> false (*UB*)
+    | None, Some t -> equals (Var x) t
+    | Some t, None -> equals (Var y) t
+    | Some t1, Some t2 -> equals t1 t2;;
 
 
 
@@ -94,3 +96,5 @@ let print_one_var v t =
 let print_vars () =
   Printf.printf "Affichage des variables :\n\n";
   Hashtbl.iter print_one_var global_state
+
+

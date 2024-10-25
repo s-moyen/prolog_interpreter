@@ -9,7 +9,7 @@ let rec unify t1 t2 =
       raise Unification_failure
   
   |Term.Var v1, Term.Var v2 -> 
-    if v1 <> v2 then
+    if not (Term.var_equals v1 v2) then
     let tbl = Term.get_global_state () in
     (match Hashtbl.find_opt tbl v1, Hashtbl.find_opt tbl v2 with
     | None, None -> Term.bind v1 (Term.Var v2)
