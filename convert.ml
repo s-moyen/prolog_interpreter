@@ -28,14 +28,14 @@ and convert_term_list tl tbl = let rec aux tl l = match tl with
 
 let convert_term_t t = let tbl = Hashtbl.create 10 in convert_term_with_hash t tbl;;
 
+let tableGLOBAL = Hashtbl.create 10;
 
 let convert_ast_to_query_atom atom = let tbl = Hashtbl.create 10 in
   match atom with
-  | Ast.Atom.Atom(s, terms) -> Query.Atom(s, convert_term_list terms tbl)
+  | Ast.Atom.Atom(s, terms) -> Query.Atom(s, convert_term_list terms tableGLOBAL)
 
 
 exception Not_matching_rule
-
 
 
 let rec convert_result atom rgl = let open Query in match (atom, rgl) with

@@ -3,14 +3,8 @@ ast.cmo : \
 ast.cmx : \
     term.cmx
 convert.cmo : \
-    term.cmi \
-    query.cmi \
-    ast.cmo \
     convert.cmi
 convert.cmx : \
-    term.cmx \
-    query.cmx \
-    ast.cmx \
     convert.cmi
 convert.cmi : \
     term.cmi \
