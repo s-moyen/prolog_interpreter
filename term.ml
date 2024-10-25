@@ -63,7 +63,7 @@ let var v = Var v;;
 
 let fresh () = let x = !variable_cntr + 1 in variable_cntr:=x; x;;
 
-let fresh_var () = let v = fresh () in let t = var v in t;;
+let fresh_var () = var (fresh ());;
 
 let save () = Hashtbl.copy global_state;;
 
