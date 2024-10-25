@@ -38,9 +38,10 @@ type atom_to_query_t = string -> Term.t list -> t
 
 (* f ~x:6 5 *)
 
-let get_atom_to_query atom_to_query = match atom_to_query with
-| Some x -> x
-| _ -> failwith "get_atom_to_query : mauvaise déconstruction type option"
+let get_atom_to_query atom_to_query = 
+  match atom_to_query with
+  | Some x -> x
+  | None -> (fun (s : string) (terms : Term.t list) -> False)
 
 
 let rec search ?atom_to_query process_result q = match q with
