@@ -55,8 +55,7 @@ let rec search ?atom_to_query process_result q =
   | Or (t1, t2) ->
     let s = Term.save () in (
       search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t1;
-      Term.restore s;
-
+      Term.restore s
   | And(q1, q2) -> 
     let inner_process = (fun () -> search ~atom_to_query:atom_to_query process_result q2) in
     search ~atom_to_query:atom_to_query inner_process q1

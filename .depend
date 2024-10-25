@@ -47,12 +47,8 @@ parser.cmx : \
 parser.cmi : \
     ast.cmo
 query.cmo : \
-    unify.cmi \
-    term.cmi \
     query.cmi
 query.cmx : \
-    unify.cmx \
-    term.cmx \
     query.cmi
 query.cmi : \
     term.cmi
