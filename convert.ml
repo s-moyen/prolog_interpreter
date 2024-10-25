@@ -11,7 +11,7 @@ La hashtable est local car on ne veut pas que les variables soient partagées en
 
 
 
-let rec convert_term_with_hash t tbl =
+let rec convert_term_with_hash t tbl=  
   match t with
   | Ast.Term.App (str, tl) -> Term.Fun(str, convert_term_list tl tbl)
   | Ast.Term.Var v -> Printf.printf "Var %s\n" v;
@@ -53,35 +53,36 @@ let rec convert_hyp hyp_l = match hyp_l with
 
 
 
-
-let convert_1_rule atom (ccl, hyp_l) = match hyp_l with
-(* cette fonction prend en argument une règle et un Query.atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
-  et les termes des règles*)
-  | [] -> let ccl_query = convert_ast_to_query_atom ccl in
-    (match atom, ccl_query with
-      | Query.Atom(s1, l1), Query.Atom(s2, l2) -> let compt = ref true in (
-        if s1 = s2 then (
-          List.iter2 (fun t1 t2 -> compt := !compt && Term.equals t1 t2) l1 l2 ;
-          if !compt then
-            Query.True
+  let convert_1_rule atom (ccl, hyp_l) = match hyp_l with
+  (* cette fonction prend en argument une règle et un Query.atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
+    et les termes des règles*)
+    | [] -> let ccl_query = convert_ast_to_query_atom ccl in
+      (match atom, ccl_query with
+        | Query.Atom(s1, l1), Query.Atom(s2, l2) -> let compt = ref true in (
+          if s1 = s2 then (
+            List.iter2 (fun t1 t2 -> compt := !compt && Term.equals t1 t2) l1 l2 ;
+            if !compt then
+              Query.True
+            else
+              convert_result atom (convert_ast_to_query_atom ccl)
+          )
           else
-            convert_result atom (convert_ast_to_query_atom ccl)
+            Query.False
         )
-        else
-          Query.False
+          
+        | _ -> failwith "convert_1_rule : C'est pas des atomes ca frero"
       )
-        
-      | _ -> failwith "convert_1_rule : C'est pas des atomes ca frero"
-    )
-  | _ ->  try
-            let gauche = convert_result atom (convert_ast_to_query_atom ccl)
-            in
-              (if gauche = Query.False then (*pas d'application possible car la regle ne matche pas*)
-                Query.False
-              else
-                Query.And(gauche, convert_hyp hyp_l))
-          with
-            Not_matching_rule -> (*la conclusion ne matche même pas*) Query.False
+    | _ ->  try
+              let gauche = convert_result atom (convert_ast_to_query_atom ccl)
+              in
+                (if gauche = Query.False then (*pas d'application possible car la regle ne matche pas*)
+                  Query.False
+                else
+                  Query.And(gauche, convert_hyp hyp_l))
+            with
+              Not_matching_rule -> (*la conclusion ne matche même pas*) Query.False
+  
+
 
 
 let rules regles =
