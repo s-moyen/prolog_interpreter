@@ -8,8 +8,7 @@ in aux str 0 0;;
 pour cela on utilise une hashtable qui associe les variables à des entiers 
 La hashtable est local car on ne veut pas que les variables soient partagées entre les différents atom_t*)
 
-
-
+let tableGLOBAL = Hashtbl.create 10;;
 
 let rec convert_term_with_hash t tbl=  
   match t with
@@ -28,7 +27,6 @@ and convert_term_list tl tbl = let rec aux tl l = match tl with
 
 let convert_term_t t = let tbl = Hashtbl.create 10 in convert_term_with_hash t tbl;;
 
-let tableGLOBAL = Hashtbl.create 10;
 
 let convert_ast_to_query_atom atom = let tbl = Hashtbl.create 10 in
   match atom with
