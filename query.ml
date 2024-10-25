@@ -53,15 +53,6 @@ let rec search ?atom_to_query process_result q =
   pp (Format.std_formatter) q; print_string "\n";
   match q with
   | True | False -> if q = True then process_result ()
-<<<<<<< HEAD
-  | And(t1, t2) -> search ~atom_to_query:(get_atom_to_query atom_to_query) (fun () -> search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t2) t1
-  | Or (t1, t2) ->
-    let s = Term.save () in (
-      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t1;
-      Term.restore s
-=======
-
->>>>>>> 4b321bd662aa78e730fb8ca646e4382efbdc4383
   | And(q1, q2) -> 
     let inner_process = (fun () -> search ~atom_to_query:atom_to_query process_result q2) in
     search ~atom_to_query:atom_to_query inner_process q1
