@@ -85,8 +85,7 @@ let rec convert_hyp hyp_list =
 
 
 
-(* Une première fonction qui prend en entrée une hypothèse et qui renvoie une table de hachage contenant les nouvelles
-variables correspondant aux variables de cette hypothèse*)
+
 let rec change_vars_in_terms termes tbl = match termes with
   | [] -> []
   | terme::suite_termes -> let nouveau_terme =  (match terme with
@@ -96,9 +95,9 @@ let rec change_vars_in_terms termes tbl = match termes with
           Hashtbl.add tbl v new_var;
           new_var
         else
-          Term.Var v
+          Hashtbl.find tbl v
 
-    | terme -> terme
+    | Term.Fun(s, liste) -> Term.Fun(s, change_vars_in_terms liste tbl)
     )
     in
     nouveau_terme::(change_vars_in_terms suite_termes tbl)
