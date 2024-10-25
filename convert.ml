@@ -48,6 +48,11 @@ let convert_ast_to_query_atom atom =
   | Ast.Atom.Atom(s, terms) -> Query.Atom(s, convert_term_list terms tableGLOBAL)
 
 
+
+let rec list_ast_to_query liste = match liste with
+| [] -> []
+| t::q -> (convert_ast_to_query_atom t)::(list_ast_to_query q)
+
 exception Not_matching_rule
 
 
@@ -74,24 +79,58 @@ let rec convert_result atom rgl =
 let rec convert_hyp hyp_list = 
   match hyp_list with
   | [] -> Query.True
-  | [atom] -> convert_ast_to_query_atom atom
+  | [atom] -> atom
   | atom::suite_atomes -> 
-    Query.And((convert_ast_to_query_atom atom), convert_hyp suite_atomes)
+    Query.And(atom, convert_hyp suite_atomes)
+
+
+
+(* Une première fonction qui prend en entrée une hypothèse et qui renvoie une table de hachage contenant les nouvelles
+variables correspondant aux variables de cette hypothèse*)
+let rec change_vars_in_terms termes tbl = match termes with
+  | [] -> []
+  | terme::suite_termes -> let nouveau_terme =  (match terme with
+    | Term.Var v ->
+        if not (Hashtbl.mem tbl v) then
+          let new_var = Term.fresh_var () in
+          Hashtbl.add tbl v new_var;
+          new_var
+        else
+          Term.Var v
+
+    | terme -> terme
+    )
+    in
+    nouveau_terme::(change_vars_in_terms suite_termes tbl)
+
+let change_vars tbl hyp =
+    match hyp with Query.Atom(s, liste_de_termes) -> Query.Atom(s, change_vars_in_terms liste_de_termes tbl)
+    | _ -> failwith "c'est pas une hypothese\n"
+
+
+let rec change_vars_hyps tbl hyp_list =
+  match hyp_list with
+  [] -> []
+  | hyp::suite_hypotheses -> (change_vars tbl hyp)::(change_vars_hyps tbl suite_hypotheses)
+
+
+
+let rename_rule_vars ccl hyp_list =
+  let tbl = Hashtbl.create 10 in
+  let nouv_hyps = change_vars_hyps tbl hyp_list in
+  let nouv_ccl = change_vars tbl ccl in
+  (nouv_ccl, nouv_hyps)
 
 
 
 
 
-
-
-
-
-
-
-  let convert_1_rule atom (conclusion, hyp_list) =
-    let (conclusion2, hyp_list2) = nouvelles_variables conclusion hyp_list in
-    match hyp_list with
-    | [] -> let ccl_query = convert_ast_to_query_atom conclusion in (
+  let convert_1_rule atom (conclusion, ast_hyp_list) =
+    let hyp_list = list_ast_to_query ast_hyp_list in
+    let conclusion2 = convert_ast_to_query_atom conclusion in
+    let (conclusion3, hyp_list2) = rename_rule_vars conclusion2 hyp_list in
+    match hyp_list2 with
+    | [] -> let ccl_query = conclusion3 in (
       match atom, ccl_query with
       | Query.Atom(s1, l1), Query.Atom(s2, l2) -> let compt = ref true in (
         if s1 = s2 then (
@@ -99,7 +138,7 @@ let rec convert_hyp hyp_list =
           if !compt then
             Query.True
           else
-            convert_result atom (convert_ast_to_query_atom conclusion)
+            convert_result atom conclusion3
           )
         else
           Query.False

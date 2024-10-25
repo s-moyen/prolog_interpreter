@@ -31,7 +31,7 @@ val convert_result : Query.t -> Query.t -> Query.t
 
 (** Cette fonction prend en argument une liste d'hypothèses pour appliquer une
   règle, et renvoie une conjonction de ces atomes. *)
-val convert_hyp : string Ast.Atom.t list -> Query.t
+val convert_hyp : Query.t list -> Query.t
 
 
 (** Cette fonction prend en argument une règle et un Query.atome, et renvoie une
