@@ -11,25 +11,32 @@ type t =
 
 (* Term.pp terme*)
 
-let rec pp f obj = match obj with
+let rec pp formatter query = 
+  match query with
   | False -> print_string "⊥"
+
   | True -> print_string "T"
+  
   | Equals (t1, t2) -> (
     Term.pp (Format.std_formatter) t1;
     print_string " = ";
     Term.pp (Format.std_formatter) t2)
-  | And (t1, t2) ->
-    (pp f t1;
+  
+  | And (q1, q2) ->
+    (pp formatter q1;
     print_string " ∧ ";
-    pp f t2)
-  | Or (t1, t2) ->
-      (pp f t1;
+    pp formatter q2)
+  
+  | Or (q1, q2) ->
+      (pp formatter q1;
       print_string " V ";
-      pp f t2)
+      pp formatter q2)
+
   | Atom(s, l) -> (
       print_string s;
       print_string "(";
-      List.iter (fun t -> print_string " " ; Term.pp (Format.std_formatter) t) l;
+      List.iter (fun t -> print_string " " ;
+      Term.pp (Format.std_formatter) t) l;
       print_string ")")
 
 
@@ -41,40 +48,51 @@ type atom_to_query_t = string -> Term.t list -> t
 let get_atom_to_query atom_to_query = 
   match atom_to_query with
   | Some x -> x
-  | None -> (fun (s : string) (terms : Term.t list) -> False)
+  | None -> (fun s terms -> False)
 
 
-let rec search ?atom_to_query process_result q = match q with
-  | True | False -> if q = True then process_result ()
-  | And(t1, t2) -> search ~atom_to_query:(get_atom_to_query atom_to_query) (fun () -> search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t2) t1
-  | Or (t1, t2) ->
-    let s = Term.save () in (
-      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t1;
-      Term.restore s;
+let rec search ?atom_to_query process_result query =
+  let atom_to_query = get_atom_to_query atom_to_query in
+  match query with
+  | True | False -> if query = True then process_result ()
 
-      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t2;
-      Term.restore s;
+  | And(q1, q2) -> 
+    let inner_process = (fun () -> search ~atom_to_query:atom_to_query process_result q2) in
+    search ~atom_to_query:atom_to_query inner_process q1
+
+  | Or (q1, q2) ->
+    let original_state = Term.save () in (
+      search ~atom_to_query:atom_to_query process_result q1;
+      Term.restore original_state;
+
+      search ~atom_to_query:atom_to_query process_result q2;
+      Term.restore original_state;
     )
+
   | Equals(t1, t2) ->
-    let s = Term.save () in (
+    let original_state = Term.save () in (
       try
         let _ = Unify.unify t1 t2 in
-        process_result ();
+        process_result ()
+
       with
-        Unify.Unification_failure  -> Term.restore s
+        Unify.Unification_failure  -> Term.restore original_state
     )
+
   | Atom(s, l) ->
-    let new_query = (get_atom_to_query atom_to_query) s l in
-      print_string "Nouvelle requête : " ; pp (Format.std_formatter) new_query; print_string "\n";
-      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result new_query
+    let new_query = atom_to_query s l in
+      print_string "Nouvelle requête : " ; pp (Format.std_formatter) new_query; 
+      print_string "\n";
+      search ~atom_to_query:atom_to_query process_result new_query
 
 
 
 
-let has_solution ?atom_to_query q =
-  let solution = ref false
-  in
-    search ~atom_to_query:(get_atom_to_query atom_to_query) (fun () -> solution := true) q;
-    !solution
+let has_solution ?atom_to_query query =
+  let solution = ref false in
+  let atom_to_query = get_atom_to_query atom_to_query in
+  
+  search ~atom_to_query:atom_to_query (fun () -> solution := true) query;
+  !solution
 
     
