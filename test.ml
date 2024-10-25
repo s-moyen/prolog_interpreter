@@ -97,7 +97,7 @@ let unify_tests = "Unify", [ (* {{{ *)
       let rec tree t n =
         if n = 0 then t else tree (node t t) (n-1)
       in
-      let n = 1 in
+      let n = 10_000_000 in
       let t1 = tree x n in
       let t2 = tree y n in
       Unify.unify t1 t2

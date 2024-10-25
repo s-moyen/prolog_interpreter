@@ -47,23 +47,24 @@ let rec convert_result atom rgl = let open Query in match (atom, rgl) with
 
 let rec convert_hyp hyp_l = match hyp_l with
 (* cette fonction prend en argument une liste d'hypothèses pour appliquer une règle, et renvoie une conjonction de ces atomes *)
+  | [] -> Query.True
   | [atom] -> convert_ast_to_query_atom atom
   | atom::suite_atomes -> Query.And((convert_ast_to_query_atom atom), convert_hyp suite_atomes)
-  | _ -> failwith "TU M'AS PAS DONNE UNE LISTE D'ATOMES"
 
 
 
 
-let convert_1_rule atom (rgl, hyp_l) =
+let convert_1_rule atom (rgl, hyp_l) = match hyp_l with
 (* cette fonction prend en argument une règle et un Query.atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
   et les termes des règles*)
-  Query.And(convert_result atom (convert_ast_to_query_atom rgl), convert_hyp hyp_l)
+  | [] -> convert_result atom (convert_ast_to_query_atom rgl)
+  | _ -> Query.And(convert_result atom (convert_ast_to_query_atom rgl), convert_hyp hyp_l)
 
 
 let rules regles =
   (* Cette fonction prend en argument une liste de regles et renvoie une fonction qui prend en argument un atome
     et construit une requête correspondant à l'atome *)
-  let rec aux regles s_atom l_atom = match regles with
+  let rec aux rem_rules s_atom l_atom = match rem_rules with
   | [] -> Query.False
   | [regle] -> convert_1_rule (Query.Atom(s_atom, l_atom)) regle
   | regle::suite_regles -> Query.Or(convert_1_rule (Query.Atom(s_atom, l_atom)) regle, aux suite_regles s_atom l_atom)

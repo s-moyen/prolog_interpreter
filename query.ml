@@ -29,7 +29,7 @@ let rec pp f obj = match obj with
   | Atom(s, l) -> (
       print_string s;
       print_string "(";
-      List.iter (Term.pp (Format.std_formatter)) l;
+      List.iter (fun t -> print_string " " ; Term.pp (Format.std_formatter) t) l;
       print_string ")")
 
 
@@ -63,7 +63,7 @@ let rec search ?atom_to_query process_result q = match q with
       with
         Unify.Unification_failure  -> Term.restore s
     )
-  | Atom(s, l) -> search ~atom_to_query:(get_atom_to_query atom_to_query) process_result ((get_atom_to_query atom_to_query) s l)
+  | Atom(s, l) -> print_string "z2 " ; search ~atom_to_query:(get_atom_to_query atom_to_query) process_result ((get_atom_to_query atom_to_query) s l)
 
 
 
