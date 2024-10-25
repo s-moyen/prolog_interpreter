@@ -19,18 +19,18 @@ let rec pp f obj = match obj with
     print_string " = ";
     Term.pp (Format.std_formatter) t2)
   | And (t1, t2) ->
-    (pp f t1;
+    (print_string "(";
+    pp f t1;
     print_string " ∧ ";
-    pp f t2)
+    pp f t2;
+    print_string ")")
   | Or (t1, t2) ->
-      (pp f t1;
+      (print_string "(";
+      pp f t1;
       print_string " V ";
-      pp f t2)
-  | Atom(s, l) -> (
-      print_string s;
-      print_string "(";
-      List.iter (fun t -> print_string " " ; Term.pp (Format.std_formatter) t) l;
+      pp f t2;
       print_string ")")
+  | Atom(s, l) -> Term.pp f (Fun(s, l))
 
 
 (* atom to query : transforme en disjonction de toutes les règles applicables *)
@@ -44,7 +44,9 @@ let get_atom_to_query atom_to_query =
   | None -> (fun (s : string) (terms : Term.t list) -> False)
 
 
-let rec search ?atom_to_query process_result q = match q with
+let rec search ?atom_to_query process_result q =
+  print_string "Nouvelle requête : " ; pp (Format.std_formatter) q; print_string "\n";
+  match q with
   | True | False -> if q = True then process_result ()
   | And(t1, t2) -> search ~atom_to_query:(get_atom_to_query atom_to_query) (fun () -> search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t2) t1
   | Or (t1, t2) ->
@@ -65,7 +67,6 @@ let rec search ?atom_to_query process_result q = match q with
     )
   | Atom(s, l) ->
     let new_query = (get_atom_to_query atom_to_query) s l in
-      print_string "Nouvelle requête : " ; pp (Format.std_formatter) new_query; print_string "\n";
       search ~atom_to_query:(get_atom_to_query atom_to_query) process_result new_query
 
 
