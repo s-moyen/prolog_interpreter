@@ -12,7 +12,7 @@ let rec convert_term_with_hash t tbl=
   match t with
   | Ast.Term.App (str, tl) -> Term.Fun(str, convert_term_list tl tbl)
   | Ast.Term.Var v -> Printf.printf "Var %s\n" v;
-    if Hashtbl.mem tbl v then Term.Var (Hashtbl.find tbl v)
+    if Hashtbl.mem tbl v then( (Printf.printf "%s trouve dans la table de variable %d\n" v (Hashtbl.find tbl v)); Term.Var (Hashtbl.find tbl v))
     else 
       let x = Term.fresh () in       Printf.printf "'%s' pas trouve dans la table, on lui associe %d\n" v x;
       Hashtbl.add tbl v x; (* on ajoute cette variable pour subrequete à la hashtlb local*)
@@ -25,9 +25,8 @@ and convert_term_list tl tbl = let rec aux tl l = match tl with
     in aux tl [];;
   
 
-let convert_term_t t = let sv = Term.save () in
-   let tbl = Hashtbl.create 10 in let x = convert_term_with_hash t tbl
-  in Term.restore sv; x;;
+let convert_term_t t = (*let sv = Term.save () in*)
+   let tbl = Hashtbl.create 10 in convert_term_with_hash t tbl
 
 
 let convert_ast_to_query_atom atom = let tbl = Hashtbl.create 10 in
