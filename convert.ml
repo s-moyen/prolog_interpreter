@@ -8,6 +8,9 @@ in aux str 0 0;;
 pour cela on utilise une hashtable qui associe les variables à des entiers 
 La hashtable est local car on ne veut pas que les variables soient partagées entre les différents atom_t*)
 
+
+
+
 let rec convert_term_with_hash t tbl=  
   match t with
   | Ast.Term.App (str, tl) -> Term.Fun(str, convert_term_list tl tbl)
@@ -15,18 +18,15 @@ let rec convert_term_with_hash t tbl=
     if Hashtbl.mem tbl v then( (Printf.printf "%s trouve dans la table de variable %d\n" v (Hashtbl.find tbl v)); Term.Var (Hashtbl.find tbl v))
     else 
       let x = Term.fresh () in       Printf.printf "'%s' pas trouve dans la table, on lui associe %d\n" v x;
-      Hashtbl.add tbl v x; (* on ajoute cette variable pour subrequete à la hashtlb local*)
-      let t = Term.var x in 
-      (*Term.bind x t;*) 
-      t
+      Hashtbl.add tbl v x;
+      Term.var x
 and convert_term_list tl tbl = let rec aux tl l = match tl with
       | [] -> l
-      | t::ts -> (convert_term_with_hash t tbl )::(aux ts l)
+      | t::ts -> (convert_term_with_hash t tbl)::(aux ts l)
     in aux tl [];;
   
 
-let convert_term_t t = (*let sv = Term.save () in*)
-   let tbl = Hashtbl.create 10 in convert_term_with_hash t tbl
+let convert_term_t t = let tbl = Hashtbl.create 10 in convert_term_with_hash t tbl;;
 
 
 let convert_ast_to_query_atom atom = let tbl = Hashtbl.create 10 in
@@ -53,26 +53,36 @@ let rec convert_hyp hyp_l = match hyp_l with
 
 
 
-
-let convert_1_rule atom (ccl, hyp_l) = match hyp_l with
-(* cette fonction prend en argument une règle et un Query.atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
-  et les termes des règles*)
-  | [] -> let ccl_query = convert_ast_to_query_atom ccl in
-    (match atom, ccl_query with
-      | Query.Atom(s1, l1), Query.Atom(s2, l2) -> let compt = ref (s1 = s2) in
-        List.iter2 (fun t1 t2 -> compt := !compt && Term.equals t1 t2) l1 l2 ;
-        if !compt then
-          Query.True
-        else
-          convert_result atom (convert_ast_to_query_atom ccl)
-        
-      | _ -> failwith "convert_1_rule : C'est pas des atomes ca frero"
-    )
-  | _ -> let gauche = convert_result atom (convert_ast_to_query_atom ccl) in
-          (if gauche = Query.False then (*pas d'application possible car la regle ne matche pas*)
-            Query.False
+  let convert_1_rule atom (ccl, hyp_l) = match hyp_l with
+  (* cette fonction prend en argument une règle et un Query.atome, et renvoie une conjonctions d'égalités sur les termes de l'atome
+    et les termes des règles*)
+    | [] -> let ccl_query = convert_ast_to_query_atom ccl in
+      (match atom, ccl_query with
+        | Query.Atom(s1, l1), Query.Atom(s2, l2) -> let compt = ref true in (
+          if s1 = s2 then (
+            List.iter2 (fun t1 t2 -> compt := !compt && Term.equals t1 t2) l1 l2 ;
+            if !compt then
+              Query.True
+            else
+              convert_result atom (convert_ast_to_query_atom ccl)
+          )
           else
-            Query.And(gauche, convert_hyp hyp_l))
+            Query.False
+        )
+          
+        | _ -> failwith "convert_1_rule : C'est pas des atomes ca frero"
+      )
+    | _ ->  try
+              let gauche = convert_result atom (convert_ast_to_query_atom ccl)
+              in
+                (if gauche = Query.False then (*pas d'application possible car la regle ne matche pas*)
+                  Query.False
+                else
+                  Query.And(gauche, convert_hyp hyp_l))
+            with
+              Not_matching_rule -> (*la conclusion ne matche même pas*) Query.False
+  
+
 
 
 let rules regles =

@@ -21,23 +21,19 @@ let rec pp formatter query =
     Term.pp (Format.std_formatter) t1;
     print_string " = ";
     Term.pp (Format.std_formatter) t2)
-  
-  | And (q1, q2) ->
-    (pp formatter q1;
+  | And (t1, t2) ->
+    (print_string "(";
+    pp f t1;
     print_string " ∧ ";
-    pp formatter q2)
-  
-  | Or (q1, q2) ->
-      (pp formatter q1;
+    pp f t2;
+    print_string ")")
+  | Or (t1, t2) ->
+      (print_string "(";
+      pp f t1;
       print_string " V ";
-      pp formatter q2)
-
-  | Atom(s, l) -> (
-      print_string s;
-      print_string "(";
-      List.iter (fun t -> print_string " " ;
-      Term.pp (Format.std_formatter) t) l;
+      pp f t2;
       print_string ")")
+  | Atom(s, l) -> Term.pp f (Fun(s, l))
 
 
 (* atom to query : transforme en disjonction de toutes les règles applicables *)
@@ -51,10 +47,15 @@ let get_atom_to_query atom_to_query =
   | None -> (fun s terms -> False)
 
 
-let rec search ?atom_to_query process_result query =
-  let atom_to_query = get_atom_to_query atom_to_query in
-  match query with
-  | True | False -> if query = True then process_result ()
+let rec search ?atom_to_query process_result q =
+  print_string "Nouvelle requête : " ; pp (Format.std_formatter) q; print_string "\n";
+  match q with
+  | True | False -> if q = True then process_result ()
+  | And(t1, t2) -> search ~atom_to_query:(get_atom_to_query atom_to_query) (fun () -> search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t2) t1
+  | Or (t1, t2) ->
+    let s = Term.save () in (
+      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result t1;
+      Term.restore s;
 
   | And(q1, q2) -> 
     let inner_process = (fun () -> search ~atom_to_query:atom_to_query process_result q2) in
@@ -80,10 +81,8 @@ let rec search ?atom_to_query process_result query =
     )
 
   | Atom(s, l) ->
-    let new_query = atom_to_query s l in
-      print_string "Nouvelle requête : " ; pp (Format.std_formatter) new_query; 
-      print_string "\n";
-      search ~atom_to_query:atom_to_query process_result new_query
+    let new_query = (get_atom_to_query atom_to_query) s l in
+      search ~atom_to_query:(get_atom_to_query atom_to_query) process_result new_query
 
 
 

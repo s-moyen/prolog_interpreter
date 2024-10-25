@@ -95,9 +95,13 @@ let reset () = variable_cntr := 0; Hashtbl.clear global_state;;
 let rec pp formatter term = 
   match term with 
   | Var v -> Printf.printf "Var %d" v
-  | Fun(fun_name, sub_terms) -> Printf.printf "%s(" fun_name;
-    print_term_list sub_terms;
-    Printf.printf ");"
+  | Fun(fun_name, sub_terms) -> Printf.printf "%s" fun_name;
+    if sub_terms <> [] then begin
+      print_string "(";
+      print_term_list sub_terms;
+      print_string ")"
+    end
+
 and print_term_list terms = 
   match terms with 
   | [] -> ()
