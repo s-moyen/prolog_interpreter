@@ -43,7 +43,7 @@ let rec convert_result atom rgl = let open Query in match (atom, rgl) with
   | (Query.Atom (s1, []), Query.Atom (s2, [])) -> if s1 = s2 then Query.True else Query.False
   | (Query.Atom(s1, t1::q1), Query.Atom(s2, t2::q2)) when s1 <> s2 -> raise Not_matching_rule
   | (Query.Atom(s1, t1::q1), Query.Atom(s2, t2::q2)) -> Query.And( Query.Equals(t1, t2 ), convert_result (Query.Atom(s1, q1)) (Query.Atom(s2, q2)))
-  | _ -> failwith "TU Fé Koi"
+  | _ -> failwith "Cette requete ne correspond a aucune regle connue\n"
 
 let rec convert_hyp hyp_l = match hyp_l with
 (* cette fonction prend en argument une liste d'hypothèses pour appliquer une règle, et renvoie une conjonction de ces atomes *)
