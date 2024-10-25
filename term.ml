@@ -77,7 +77,7 @@ let fresh () =
   variable_cntr := x;
   x;;
 
-let fresh_var () = var (fresh ())
+let fresh_var () = var (fresh ());;
 
 let save () = Hashtbl.copy global_state;;
 
