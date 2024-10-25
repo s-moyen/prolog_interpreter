@@ -157,13 +157,12 @@ let rec query atoms =
     in
 
     let print_vars () =
-      if Hashtbl.length = 0 then
-        print_string "Aucun variable\n";
+      if Hashtbl.length !state_to_print = 0 then
+        print_string "Aucun variable\n"
       else
         print_string "REPONSE : ";
         Hashtbl.iter print_one_var !state_to_print;
         print_string "\n"
-      end
     in
 
     (convert_ast_to_query_atom atom), print_vars
